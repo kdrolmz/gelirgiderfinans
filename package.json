@@ -1,8 +1,0 @@
-{
-  "name": "gelirgiderfinans",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "test": "node --test tests/vault.test.mjs"
-  }
-}
