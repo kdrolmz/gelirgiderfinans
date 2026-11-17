@@ -1,27 +1,21 @@
-# GELİR & GİDER — Premium Finans Tablosu
+# Gelir & Gider
 
-iPhone Safari ana ekranı için hazırlanmış mobil finans takip PWA'sı.
+A Turkish, mobile-first finance PWA. Opens immediately without an email, username or password. Records and pending edits are stored locally; a JSON backup can be downloaded and restored on a fresh device. Monthly recurring income/expenses, finite installments, debt links and per-month payment marks are supported.
 
-## Durum
-GitHub deposunda uygulama dosyaları mevcuttur. **Bulut veritabanı bağlantısı yapılana kadar uygulama özel finans verisi kaydetmez.** GitHub Pages yayın durumunu GitHub > Settings > Pages bölümünde kontrol edin.
+## Current deployment and cloud prerequisite
 
-## Gizlilik
-Bu depo herkese açıksa **gerçek borç tutarları, kişisel alacaklar, şifreler ve kişisel başlangıç JSON dosyası GitHub'a yüklenmemelidir**. Bunlar yalnızca oturum açılan özel veritabanına aktarılmalıdır. `config.js` dosyasına **yalnızca Supabase Project URL ve public/publishable (anon) key** koyun. Kesinlikle `service_role` veya secret key eklemeyin.
+GitHub Pages uses `.github/workflows/publish.yml`. Only the explicit public asset list is published; SQL, tests and private data are excluded from the Pages artifact. Never commit personal records, backups or recovery keys (the repository itself is public).
 
-## Bulut kurulumu (zorunlu)
-1. https://supabase.com/dashboard adresinde kendinize ait proje oluşturun.
-2. SQL Editor'de `database.sql` dosyasını çalıştırın; Auth > Providers > Email'in açık olduğunu kontrol edin.
-3. Project Settings > API'den HTTPS Project URL ve **publishable/anon** key değerlerini `config.js` dosyasına koyun.
-4. Supabase > Authentication > URL Configuration içinde yayın adresini Site URL / Redirect URLs listesine ekleyin.
-5. GitHub > Settings > Pages > Deploy from a branch > main > /(root) seçeneğiyle sayfayı etkinleştirin.
-6. Uygulamaya e-posta ve güçlü şifreyle kayıt olup doğrulama e-postasını tamamlayın. Test kayıtlarını ekleyin; farklı cihazdan yeniden giriş yaparak verilerin buluttan geldiğini kontrol edin.
-7. iPhone Safari > Paylaş > Ana Ekrana Ekle ile kurun.
+Run `recovery.sql` once in the configured Supabase project's SQL editor to enable cloud vaults. This is **not** applied by GitHub Actions. On 2026-11-17 the RPC was checked and returned PGRST202 (not installed). Until installation, the UI truthfully reports device-only storage. Existing `finance_state` rows and auth configuration are untouched, and existing account data is not automatically migrated. Export and import a backup if migrating existing records.
 
-## Kayıtların korunması
-Safari geçmişi ve web sitesi verileri silinse bile **buluta başarıyla kaydedilen** kayıtlar Supabase'de kalır. Oturumun yeniden açılması gerekebilir. Çevrimdışı yapılan işlemler desteklenmez; kaydetme hatasında işlem geri alınır. Ayrıca düzenli JSON yedeklemesi önerilir.
+The new vault uses a cryptographically random 256-bit bearer recovery key, not a shared public account or a fabricated email/password. RLS and revoked table privileges prevent direct anonymous/authenticated reads and writes. SECURITY DEFINER RPCs accept the key over HTTPS POST, store only its SHA-256 hash, enforce payload bounds and optimistic revisions. The browser never receives service-role credentials. Anonymous Supabase Auth does not need to be enabled.
 
-## Finans hesaplamaları
-Ödeme işaretlendiğinde o ayın kalan planı azalır; kart/krediye bağlanmış kayıtların tahmini borç bakiyeleri de ödeme tutarı kadar düşer. Kart faizleri/yeni harcamalar banka ekstresine göre düzeltilebilir. Kredilerdeki bakiye, **kalan taksit ödemeleri toplamıdır**, gerçek anapara veya erken kapama bakiyesi değildir. Düzenli ödeme günü, başlangıç ayı ve süresi ayrı ayrı düzenlenebilir. Fibabanka ödemesi Aralık 2026'dan başlatılacak şekilde kişisel başlangıç JSON'unda bulunur.
+Download the recovery key once and save it outside Safari. Whoever possesses that file can read and change its vault. The key is never placed in a URL. Clearing website data without a saved key or backup loses access. A key restores only successfully cloud-saved changes; offline/pending edits require an up-to-date JSON backup. Backups contain personal financial information and should be stored privately. There is no key-loss recovery, account email recovery, or automatic merge.
 
-## Kişisel başlangıç
-`Gelir_Gider_Ozel_Baslangic_Verilerim.json` dosyasını **GitHub'a eklemeyin**. İlk girişten sonra Ayarlar > Özel başlangıç dosyasını içe aktar üzerinden yalnızca size özel Supabase tablosuna yükleyin.
+The public write RPC permits new random vault creation; for broader public use put it behind server-side abuse protection/rate limits and monitor database usage. This repository does not claim those controls are deployed.
+
+## Verification
+
+`node --test tests/vault.test.mjs` covers local persistence, failed local writes, cross-tab conflicts, simulated cloud round-trip/recovery, wrong-key rejection, revision conflicts, and edits during an in-flight initial read. Mock cloud tests are not proof of the SQL installation. Verify real cloud recovery and isolation after applying SQL: save a disposable record, recover with its key in a fresh browser, confirm an unrelated key returns no data, and verify direct table access is rejected.
+
+The service worker caches only public application files, never Supabase API responses. Local records remain in browser storage. Editing a recurring record can change past scheduled totals; paid amounts remain separately recorded. Compare accounting totals with statements.
