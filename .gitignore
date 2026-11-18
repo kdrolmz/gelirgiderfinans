@@ -1,0 +1,8 @@
+node_modules/
+.env*
+!.env.example
+*.log
+private-seed.json
+dist/private-seed.json
+.openai/
+artifacts/
