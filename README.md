@@ -2,10 +2,9 @@
 Mobil öncelikli, Türkçe gelir-gider ve borç takibi. İnce tipografi, tam görünen ödeme adları ve banka/kurum logoları.
 
 ## Çalışan uygulama
-Kişisel sürüm: https://pusula-finans-premium-kdrolmz.kdrolmz.chatgpt.site
 GitHub Pages sürümü: https://kdrolmz.github.io/gelirgiderfinans/
 
-Kişisel finans verileri bu açık depoda bulunmaz. GitHub Pages sürümü boş açılır; Ayarlar → Yedeği yükle ile kişisel JSON yedeğinizi yükleyin. Veriler tarayıcıda saklanır; Safari verileri silinmeden önce yedek alın. Otomatik bulut eşitlemesi yoktur.
+Başlangıç finans kayıtları AES-256-GCM ile şifrelenmiş seed.enc.json dosyasındadır. Açma anahtarı depoda bulunmaz; kullanıcıya özel bağlantının URL parçasında (#key=...) yer alır ve GitHub sunucusuna HTTP isteğinde gönderilmez. Bu özel bağlantıyı paylaşmayın. Anahtarsız bağlantı yeni/boş bir uygulama açar; Ayarlar → Yedeği yükle ile JSON yedeği de yüklenebilir. Veriler tarayıcıda saklanır; Safari verileri silinmeden önce yedek alın. Otomatik bulut eşitlemesi yoktur.
 
 ## Özellikler
 - Aylık toplam, ödenen, kalan, gelir farkı ve kart/kredi borçları
